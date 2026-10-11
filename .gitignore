@@ -1,0 +1,12 @@
+# Jira API Automation Scripts & Credentials
+jira_*.py
+test_*.py
+deploy_*.py
+update_*.py
+users.json
+run_jira_agent.bat
+
+# Logs & temp
+*.log
+.DS_Store
+Thumbs.db

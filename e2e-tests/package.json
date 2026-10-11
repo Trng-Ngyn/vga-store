@@ -1,0 +1,27 @@
+{
+  "name": "vga-store-e2e-tests",
+  "version": "1.0.0",
+  "description": "CodeceptJS End-to-End Automated Testing Suite for VGA Store",
+  "main": "index.js",
+  "scripts": {
+    "test": "codeceptjs run --steps",
+    "test:headless": "HEADLESS=true codeceptjs run --steps",
+    "test:ui": "codeceptjs run-multiple",
+    "test:report": "codeceptjs run --steps --reporter mocha-multi"
+  },
+  "keywords": [
+    "codeceptjs",
+    "playwright",
+    "e2e-testing",
+    "vga-store",
+    "software-testing"
+  ],
+  "author": "VGA Store QA Team",
+  "license": "ISC",
+  "devDependencies": {
+    "@codeceptjs/configure": "^1.0.2",
+    "chai": "^4.3.7",
+    "codeceptjs": "^3.6.5",
+    "playwright": "^1.48.0"
+  }
+}
