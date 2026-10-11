@@ -1,0 +1,32 @@
+# Qodana configuration file
+# See https://www.jetbrains.com/help/qodana/qodana-yaml.html for details
+version: "1.0"
+
+# Linter engine for JVM (Spring Boot Backend) and JavaScript/TypeScript (React Frontend)
+linter: jetbrains/qodana-jvm-community:2024.2
+
+# Recommended profile for comprehensive static code analysis
+profile:
+  name: qodana.recommended
+
+# Project inspection directories
+include:
+  - name: backend/vgashop/src/main/java
+  - name: fontend/user/src
+  - name: fontend/admin/src
+
+# Fail threshold if new critical or high defects are found (Quality Gate)
+failThreshold: 50
+
+# Exclude third-party dependencies, generated files, and build assets
+exclude:
+  - name: All
+    paths:
+      - .mvn
+      - target
+      - node_modules
+      - dist
+      - build
+      - fontend/user/dist
+      - fontend/admin/dist
+      - e2e-tests/output

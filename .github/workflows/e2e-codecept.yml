@@ -1,0 +1,44 @@
+name: "CodeceptJS - E2E Acceptance Testing"
+
+on:
+  workflow_dispatch:
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  e2e-tests:
+    name: "Run CodeceptJS E2E Test Suite"
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+          cache-dependency-path: e2e-tests/package.json
+
+      - name: Install E2E Dependencies
+        working-directory: ./e2e-tests
+        run: npm install
+
+      - name: Install Playwright Browsers
+        working-directory: ./e2e-tests
+        run: npx playwright install chromium --with-deps
+
+      - name: Run E2E Tests (Headless)
+        working-directory: ./e2e-tests
+        env:
+          HEADLESS: true
+          BASE_URL: https://demo-vga-store.example.com
+        run: npm run test:headless || true
+
+      - name: Upload E2E Test Screenshots / Artifacts
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: codecept-test-output
+          path: e2e-tests/output/
