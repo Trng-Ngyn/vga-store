@@ -29,14 +29,16 @@ jobs:
 
       - name: Install Playwright Browsers
         working-directory: ./e2e-tests
-        run: npx playwright install chromium --with-deps
+        run: npx playwright install chromium
 
       - name: Run E2E Tests (Headless)
         working-directory: ./e2e-tests
         env:
           HEADLESS: true
           BASE_URL: https://demo-vga-store.example.com
-        run: npm run test:headless || true
+        run: |
+          mkdir -p output
+          npm run test:headless || true
 
       - name: Upload E2E Test Screenshots / Artifacts
         uses: actions/upload-artifact@v4
@@ -44,3 +46,5 @@ jobs:
         with:
           name: codecept-test-output
           path: e2e-tests/output/
+          if-no-files-found: ignore
+
