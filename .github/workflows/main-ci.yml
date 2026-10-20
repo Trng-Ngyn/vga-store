@@ -70,7 +70,7 @@ jobs:
 
       - name: Install Dependencies
         working-directory: ./fontend/user
-        run: npm ci
+        run: npm install
 
       - name: Run Linter
         working-directory: ./fontend/user
@@ -100,7 +100,7 @@ jobs:
 
       - name: Install Dependencies
         working-directory: ./fontend/admin
-        run: npm ci
+        run: npm install
 
       - name: Run Linter
         working-directory: ./fontend/admin
