@@ -56,6 +56,142 @@ public class DataSeeder {
                 systemSettingRepository.save(SystemSetting.builder().settingKey("BANK_ACC_NAME").settingValue("CONG TY VGA STORE").description("Tên chủ tài khoản").build());
             }
 
+            // Seed Brands
+            Brand asus = null;
+            Brand gigabyte = null;
+            if (brandRepository.count() == 0) {
+                asus = new Brand();
+                asus.setName("ASUS");
+                asus.setSlug("asus");
+                asus.setStatus(true);
+                asus = brandRepository.save(asus);
+
+                gigabyte = new Brand();
+                gigabyte.setName("GIGABYTE");
+                gigabyte.setSlug("gigabyte");
+                gigabyte.setStatus(true);
+                gigabyte = brandRepository.save(gigabyte);
+            } else {
+                asus = brandRepository.findAll().get(0);
+                gigabyte = brandRepository.findAll().size() > 1 ? brandRepository.findAll().get(1) : asus;
+            }
+
+            // Seed Categories
+            Category rtx40 = null;
+            Category rtx30 = null;
+            if (categoryRepository.count() == 0) {
+                rtx40 = new Category();
+                rtx40.setName("NVIDIA RTX 40 Series");
+                rtx40.setDescription("Dòng card đồ họa kiến trúc Ada Lovelace");
+                rtx40.setActive(true);
+                rtx40 = categoryRepository.save(rtx40);
+
+                rtx30 = new Category();
+                rtx30.setName("NVIDIA RTX 30 Series");
+                rtx30.setDescription("Dòng card đồ họa kiến trúc Ampere");
+                rtx30.setActive(true);
+                rtx30 = categoryRepository.save(rtx30);
+            } else {
+                rtx40 = categoryRepository.findAll().get(0);
+                rtx30 = categoryRepository.findAll().size() > 1 ? categoryRepository.findAll().get(1) : rtx40;
+            }
+
+            // Seed Products
+            if (productRepository.count() == 0) {
+                Product p1 = new Product();
+                p1.setName("ASUS TUF Gaming GeForce RTX 4090 24GB GDDR6X OC Edition");
+                p1.setPrice(new BigDecimal("55990000"));
+                p1.setOldPrice(new BigDecimal("62000000"));
+                p1.setStock(15);
+                p1.setSku("TUF-RTX4090-O24G-GAMING");
+                p1.setDescription("Card màn hình cao cấp ASUS TUF RTX 4090 mang lại hiệu năng đỉnh cao cho game thủ và nhà sáng tạo.");
+                p1.setImgUrl("/images/products/asus/asus_tuf_gaming_geforce_rtx_4090_24gb_gddr6x_oc_edit_051.jpg");
+                p1.setGpuModel("GeForce RTX 4090");
+                p1.setVram("24GB GDDR6X");
+                p1.setStatus(true);
+                p1.setBrand(asus);
+                p1.setCategory(rtx40);
+                productRepository.save(p1);
+
+                Product p2 = new Product();
+                p2.setName("GIGABYTE AORUS GeForce RTX 4080 SUPER XTREME ICE 16GB");
+                p2.setPrice(new BigDecimal("35990000"));
+                p2.setOldPrice(new BigDecimal("38900000"));
+                p2.setStock(10);
+                p2.setSku("GV-N408SAORUSX-ICE-16GD");
+                p2.setDescription("Thiết kế màu trắng tinh tế phiên bản băng tuyết với hệ thống tản nhiệt Windforce cực mát.");
+                p2.setImgUrl("/images/products/gigabyte/gigabyte_aorus_geforce_rtx_4080_super_xtreme_ice_16g_018.jpg");
+                p2.setGpuModel("GeForce RTX 4080 SUPER");
+                p2.setVram("16GB GDDR6X");
+                p2.setStatus(true);
+                p2.setBrand(gigabyte);
+                p2.setCategory(rtx40);
+                productRepository.save(p2);
+
+                Product p3 = new Product();
+                p3.setName("ASUS ProArt GeForce RTX 4070 Ti SUPER 16GB GDDR6X OC");
+                p3.setPrice(new BigDecimal("26990000"));
+                p3.setOldPrice(new BigDecimal("29000000"));
+                p3.setStock(20);
+                p3.setSku("PROART-RTX4070TIS-O16G");
+                p3.setDescription("Dòng card chuyên biệt cho đồ họa, dựng phim 4K và kiến trúc sư với độ ổn định tuyệt đối.");
+                p3.setImgUrl("/images/products/asus/asus_proart_geforce_rtx_4070_ti_super_16gb_gddr6x_oc_052.jpg");
+                p3.setGpuModel("GeForce RTX 4070 Ti SUPER");
+                p3.setVram("16GB GDDR6X");
+                p3.setStatus(true);
+                p3.setBrand(asus);
+                p3.setCategory(rtx40);
+                productRepository.save(p3);
+
+                Product p4 = new Product();
+                p4.setName("GIGABYTE GeForce RTX 4070 SUPER WINDFORCE OC 12GB");
+                p4.setPrice(new BigDecimal("18500000"));
+                p4.setOldPrice(new BigDecimal("20500000"));
+                p4.setStock(25);
+                p4.setSku("GV-N407SWF3OC-12GD");
+                p4.setDescription("Hiệu năng vượt trội trong tầm giá, cân mượt mà mọi tựa game AAA ở độ phân giải 2K.");
+                p4.setImgUrl("/images/products/gigabyte/gigabyte_geforce_rtx_4070_super_windforce_oc_12g_013.jpg");
+                p4.setGpuModel("GeForce RTX 4070 SUPER");
+                p4.setVram("12GB GDDR6X");
+                p4.setStatus(true);
+                p4.setBrand(gigabyte);
+                p4.setCategory(rtx40);
+                productRepository.save(p4);
+
+                Product p5 = new Product();
+                p5.setName("ASUS Dual GeForce RTX 4060 V2 OC Edition 8GB GDDR6");
+                p5.setPrice(new BigDecimal("8990000"));
+                p5.setOldPrice(new BigDecimal("9900000"));
+                p5.setStock(30);
+                p5.setSku("DUAL-RTX4060-O8G-V2");
+                p5.setDescription("Card đồ họa phổ biến nhất cho dàn PC gaming tầm trung, tiết kiệm điện năng tối đa.");
+                p5.setImgUrl("/images/products/asus/asus_dual_rtx4060_v2.png");
+                p5.setGpuModel("GeForce RTX 4060");
+                p5.setVram("8GB GDDR6");
+                p5.setStatus(true);
+                p5.setBrand(asus);
+                p5.setCategory(rtx40);
+                productRepository.save(p5);
+
+                Product p6 = new Product();
+                p6.setName("GIGABYTE GeForce RTX 3060 WINDFORCE OC 12GB V2");
+                p6.setPrice(new BigDecimal("7490000"));
+                p6.setOldPrice(new BigDecimal("8200000"));
+                p6.setStock(18);
+                p6.setSku("GV-N3060WF2OC-12GD-V2");
+                p6.setDescription("Chiến binh quốc dân với 12GB VRAM thoải mái làm đồ họa và chơi game Esports.");
+                p6.setImgUrl("/images/products/gigabyte/gigabyte_geforce_rtx_3060_windforce_oc_12g_v2_014.jpg");
+                p6.setGpuModel("GeForce RTX 3060");
+                p6.setVram("12GB GDDR6");
+                p6.setStatus(true);
+                p6.setBrand(gigabyte);
+                p6.setCategory(rtx30);
+                productRepository.save(p6);
+
+                System.out.println(">>> [SEEDER] Created sample VGA products, categories, and brands successfully!");
+            }
+
+
 
             if (blogRepository.count() == 0) {
                 Blog b1 = new Blog();
