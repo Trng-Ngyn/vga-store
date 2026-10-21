@@ -28,19 +28,19 @@ jobs:
       - name: Check Docker Hub Credentials
         id: check-creds
         run: |
-          if [ -n "${{ secrets.DOCKERHUB_USERNAME }}" ] && [ -n "${{ secrets.DOCKERHUB_TOKEN }}" ]; then
+          if [ -n "${{ secrets.DOCKERHUB_TOKEN }}" ]; then
             echo "has_creds=true" >> $GITHUB_OUTPUT
-            echo "Docker Hub credentials found. Will login and push."
+            echo "Docker Hub token found. Will login as dinhtrng and push."
           else
             echo "has_creds=false" >> $GITHUB_OUTPUT
-            echo "Docker Hub credentials not configured. Will test build images without pushing."
+            echo "Docker Hub token not configured in GitHub Secrets. Will test build images without pushing."
           fi
 
       - name: Log in to Docker Hub
         if: steps.check-creds.outputs.has_creds == 'true'
         uses: docker/login-action@v3
         with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          username: ${{ secrets.DOCKERHUB_USERNAME || 'dinhtrng' }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       # Extract Docker Metadata (SemVer tags, SHA, branch)
@@ -48,7 +48,7 @@ jobs:
         id: meta-backend
         uses: docker/metadata-action@v5
         with:
-          images: ${{ secrets.DOCKERHUB_USERNAME || 'vga-store' }}/vga-backend
+          images: dinhtrng/vga-backend
           tags: |
             type=semver,pattern={{version}}
             type=sha,format=short
@@ -58,7 +58,7 @@ jobs:
         id: meta-user
         uses: docker/metadata-action@v5
         with:
-          images: ${{ secrets.DOCKERHUB_USERNAME || 'vga-store' }}/vga-user
+          images: dinhtrng/vga-user
           tags: |
             type=semver,pattern={{version}}
             type=sha,format=short
@@ -68,11 +68,12 @@ jobs:
         id: meta-admin
         uses: docker/metadata-action@v5
         with:
-          images: ${{ secrets.DOCKERHUB_USERNAME || 'vga-store' }}/vga-admin
+          images: dinhtrng/vga-admin
           tags: |
             type=semver,pattern={{version}}
             type=sha,format=short
             type=raw,value=latest,enable={{is_default_branch}}
+
 
       # Build and Test/Push Images
       - name: Build & Push Backend Image
