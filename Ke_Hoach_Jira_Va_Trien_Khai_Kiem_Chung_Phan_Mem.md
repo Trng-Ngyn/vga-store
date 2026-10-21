@@ -3,7 +3,7 @@
 **Nhóm thực hiện:** 6 thành viên  
 **Công cụ quản lý:** Jira Software (Scrum / Agile Model)  
 **Công nghệ triển khai tuần này:** Qodana, CodeceptJS, GitHub Actions, Docker Hub  
-**Repository:** [https://github.com/thanhhai375/vga-store](https://github.com/thanhhai375/vga-store)
+**Repository:** [https://github.com/Trng-Ngyn/vga-store](https://github.com/Trng-Ngyn/vga-store)
 
 ---
 
