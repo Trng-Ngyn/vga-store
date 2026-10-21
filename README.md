@@ -97,7 +97,7 @@
 
 ```bash
 # Bước 1: Clone dự án về máy
-git clone https://github.com/thanhhai375/vga-store.git
+git clone https://github.com/Trng-Ngyn/vga-store.git
 cd vga-store
 
 # Bước 2: Khởi động toàn bộ hệ thống (lần đầu sẽ mất 2-5 phút để build)
