@@ -16,6 +16,7 @@ services:
       - ./database/seed_vga.sql:/docker-entrypoint-initdb.d/2-seed_vga.sql
 
   backend:
+    image: dinhtrng/vga-backend:latest
     build:
       context: ./backend/vgashop
       dockerfile: Dockerfile
@@ -23,15 +24,19 @@ services:
     ports:
       - "8080:8080"
     environment:
+      - SPRING_PROFILES_ACTIVE=prod
+      - SPRING_DATASOURCE_DRIVER_CLASS_NAME=org.postgresql.Driver
       - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/vga_store?useUnicode=true&characterEncoding=UTF-8
       - SPRING_DATASOURCE_USERNAME=postgres
       - SPRING_DATASOURCE_PASSWORD=3007
+
     volumes:
       - vga_uploads:/app/uploads
     depends_on:
       - db
 
   admin-frontend:
+    image: dinhtrng/vga-admin:latest
     build:
       context: ./fontend/admin
       dockerfile: Dockerfile
@@ -42,6 +47,7 @@ services:
       - backend
 
   user-frontend:
+    image: dinhtrng/vga-user:latest
     build:
       context: ./fontend/user
       dockerfile: Dockerfile
@@ -50,6 +56,7 @@ services:
       - "5173:80"
     depends_on:
       - backend
+
 
 volumes:
   pgdata:
