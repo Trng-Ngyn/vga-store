@@ -1,10 +1,12 @@
 @echo off
 chcp 65001 >nul
+cd /d "%~dp0"
 title KHOI DONG DEMO HE THONG - VGA STORE
 echo ======================================================================
 echo   HE THONG KIEM CHUNG PHAN MEM - VGA STORE
 echo ======================================================================
 echo.
+
 echo [1] Dang mo Website ban hang (User Frontend): http://localhost:5173
 start http://localhost:5173
 

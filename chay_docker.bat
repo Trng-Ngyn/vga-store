@@ -1,10 +1,12 @@
 @echo off
 chcp 65001 >nul
+cd /d "%~dp0"
 title KHOI DONG DOCKER COMPOSE - VGA STORE
 echo ======================================================================
 echo   DOCKER COMPOSE: KHOI DONG TOAN BO 4 CONTAINER DONG BO
 echo ======================================================================
 echo.
+
 
 set "PATH=C:\Users\TRONG\AppData\Local\Programs\DockerDesktop\resources\bin;%PATH%"
 
