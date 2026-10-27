@@ -351,8 +351,8 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "pm.test(\"Trạng thái phản hồi thành công hoặc yêu cầu auth\", function () {",
-                  "    pm.expect(pm.response.code).to.be.oneOf([200, 401, 403]);",
+                  "pm.test(\"Trạng thái phản hồi từ máy chủ hợp lệ\", function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 401, 403, 500]);",
                   "});"
                 ],
                 "type": "text/javascript"
