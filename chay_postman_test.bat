@@ -1,15 +1,17 @@
 @echo off
 chcp 65001 >nul
+cd /d "%~dp0"
+title KIEM THU TU DONG POSTMAN API - VGA STORE
 echo ======================================================================
-echo   CHẠY TỰ ĐỘNG BỘ TEST POSTMAN API (NEWMAN) - VGA STORE
-echo   Môn học: Kiểm chứng phần mềm
+echo   KIEM THU TU DONG POSTMAN API (NEWMAN) - VGA STORE
+echo   Mon hoc: Kiem chung phan mem
 echo ======================================================================
 echo.
-echo Đang chạy kiểm thử API tự động với Newman...
+echo Dang chay kiem thu API tu dong voi Newman...
 echo.
-npx newman run "C:\Users\TRONG\.gemini\antigravity-ide\scratch\vga-store\postman\VGA_Store.postman_collection.json" -e "C:\Users\TRONG\.gemini\antigravity-ide\scratch\vga-store\postman\VGA_Store.postman_environment.json"
+npx -y newman run "postman\VGA_Store.postman_collection.json" -e "postman\VGA_Store.postman_environment.json"
 echo.
 echo ======================================================================
-echo Hoàn thành kiểm thử! Bấm phím bất kỳ để thoát...
+echo Hoan thanh kiem thu!
 echo ======================================================================
-pause >nul
+pause
