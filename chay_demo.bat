@@ -26,7 +26,7 @@ echo.
 echo ======================================================================
 echo TONG HOP TAI KHOAN VA TIEN DO:
 echo - Website User:   http://localhost:5173
-echo - Website Admin:  http://localhost:5174 (admin / 123)
+echo - Website Admin:  http://localhost:5174 (admin / admin123)
 echo - Backend API:    http://localhost:8080
 echo - CI/CD GitHub:   Xanh 100%% (4/4 quy trinh: CI, Qodana, CodeceptJS, Docker)
 echo - Postman API:    100%% PASS (8 kich ban kiem thu)
