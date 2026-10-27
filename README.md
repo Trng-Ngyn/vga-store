@@ -195,8 +195,15 @@ Dự án tích hợp **Google Gemini 1.5 Flash** làm trợ lý tư vấn bán h
 
 API Key đã được cấu hình sẵn trong file `fontend/user/.env`. Nếu hết quota, bạn có thể lấy key miễn phí tại [Google AI Studio](https://aistudio.google.com/).
 
+## 🧪 Tài Liệu Kiểm Chứng Phần Mềm & Test Cases
+
+- **Tài liệu Thiết kế Test Case (Phân vùng tương đương & Giá trị biên - EP & BVA):** [THIET_KE_TEST_CASE_PHAN_VUNG_TUONG_DUONG_VA_GIA_TRI_BIEN.md](THIET_KE_TEST_CASE_PHAN_VUNG_TUONG_DUONG_VA_GIA_TRI_BIEN.md)
+- **Kế hoạch Jira Sprint & Phân bổ 6 thành viên:** [Ke_Hoach_Jira_Va_Trien_Khai_Kiem_Chung_Phan_Mem.md](Ke_Hoach_Jira_Va_Trien_Khai_Kiem_Chung_Phan_Mem.md)
+- **Báo cáo kiểm thử tự động API (Postman & Newman 100% Pass):** [Bao_Cao_Kiem_Chung_Phan_Mem_Postman.md](Bao_Cao_Kiem_Chung_Phan_Mem_Postman.md)
+
 ---
 
-## 👨‍💻 Thông Tin Nhóm
+## 👨‍💻 Thông Tin Nhóm Thực Hiện
 
-> Nhóm 9 - Môn Thiết Kế Cơ Sở Dữ Liệu
+- **Môn học:** Kiểm chứng phần mềm (Software Testing & QA)
+- **Thành viên nhóm:** Trần Đình Trọng, Ngô Hữu Phước, Phan Khôi, Lê Minh Hiếu, Nguyễn Văn Huy, Duy Vũ
