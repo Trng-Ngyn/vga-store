@@ -12,6 +12,7 @@ exports.config = {
   helpers: {
     Playwright: {
       browser: 'chromium',
+      channel: process.env.CI ? undefined : 'chrome',
       url: process.env.BASE_URL || 'http://localhost:5173',
       show: !process.env.HEADLESS,
       waitForNavigation: 'load',
