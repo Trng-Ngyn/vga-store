@@ -9,7 +9,7 @@ Bộ kiểm thử tự động End-to-End (E2E / Acceptance Testing) cho dự á
 ### 1. Cài đặt thư viện
 ```bash
 cd e2e-tests
-npm install
+npm ci
 ```
 
 ### 2. Cài đặt trình duyệt Playwright (lần đầu tiên)
@@ -32,6 +32,15 @@ npm run test:ui -- --grep '@catalog'
 
 Khởi động frontend, backend và nạp dữ liệu mẫu trước khi chạy. Nhóm test
 `@catalog` cần danh mục có ít nhất một sản phẩm RTX.
+
+### Xem kết quả GitHub Actions
+
+Workflow **CodeceptJS - E2E Acceptance Testing** khởi động PostgreSQL với
+dữ liệu mẫu trong `database/`, chạy ứng dụng đã build và kiểm thử nhóm
+`@catalog`. Trong trang chi tiết lần chạy, tải artifact
+`codecept-catalog-output` để xem log dịch vụ và ảnh chụp nếu có test lỗi.
+Có thể dùng **Run workflow** để kiểm tra lại một nhánh từ trang Actions
+khi workflow đã có trên nhánh mặc định.
 
 ### 4. Cấu hình biến môi trường
 Mặc định bài test gọi đến `http://localhost:5173`. Có thể đổi sang server khác:
