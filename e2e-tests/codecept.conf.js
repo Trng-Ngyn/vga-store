@@ -1,7 +1,6 @@
-const { setHeadlessWhen, setCommonPlugins } = require('@codeceptjs/configure');
+const { setCommonPlugins } = require('@codeceptjs/configure');
 
-// Bật chế độ Headless khi chạy trên CI hoặc khi biến môi trường HEADLESS=true
-setHeadlessWhen(process.env.HEADLESS || false);
+const headless = (process.env.HEADLESS ?? (process.env.CI ? 'true' : 'false')).toLowerCase() === 'true';
 setCommonPlugins();
 
 /** @type {CodeceptJS.MainConfig} */
@@ -12,10 +11,10 @@ exports.config = {
   helpers: {
     Playwright: {
       browser: 'chromium',
-      channel: process.env.CI ? undefined : 'chrome',
+      channel: process.env.PLAYWRIGHT_CHANNEL || undefined,
       url: process.env.BASE_URL || 'http://localhost:5173',
-      show: !process.env.HEADLESS,
-      waitForNavigation: 'load',
+      show: !headless,
+      waitForNavigation: 'domcontentloaded',
       waitForAction: 500,
       restart: 'keep',
       windowSize: '1280x800'

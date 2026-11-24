@@ -5,8 +5,8 @@
   "main": "index.js",
   "scripts": {
     "test": "codeceptjs run --steps",
-    "test:headless": "HEADLESS=true codeceptjs run --steps",
-    "test:ui": "codeceptjs run-multiple",
+    "test:headless": "node run-tests.js headless",
+    "test:ui": "node run-tests.js headed",
     "test:report": "codeceptjs run --steps --reporter mocha-multi"
   },
   "keywords": [

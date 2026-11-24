@@ -1,19 +1,22 @@
-Feature('Trang chủ và Danh mục sản phẩm VGA Store');
+Feature('Trang chủ và Danh mục sản phẩm VGA Store').tag('@catalog');
 
-Scenario('Kiểm tra tải trang chủ thành công và hiển thị các thành phần chính', ({ I }) => {
+Scenario('Trang chủ hiển thị header, logo và sản phẩm bán chạy', ({ I }) => {
   I.amOnPage('/');
-  I.see('VGA Store');
-  // Kiểm tra thanh menu điều hướng
   I.seeElement('header');
-  // Kiểm tra danh mục sản phẩm nổi bật
-  I.see('Sản phẩm');
+  I.seeElement('header img[alt="VGA Store Logo"]');
+  I.waitForVisible('.bs-grid .bs-name', 15);
+  I.see('SẢN PHẨM BÁN CHẠY', '.bs-title');
 });
 
-Scenario('Xem chi tiết một sản phẩm card màn hình', ({ I }) => {
+Scenario('Mở đúng sản phẩm từ trang chủ và hiển thị thông số GPU', async ({ I }) => {
+  const firstCard = locate('.bs-grid .asus-corner-card').first();
   I.amOnPage('/');
-  // Nhấp vào sản phẩm đầu tiên hiển thị trên trang chủ
-  I.click('a[href*="/product/"]');
-  // Kiểm tra trang chi tiết hiển thị thông số kỹ thuật và nút mua hàng
-  I.see('Thông số kỹ thuật');
-  I.seeElement('button', 'Thêm vào giỏ');
+  I.waitForVisible(firstCard, 15);
+  const productName = await I.grabTextFrom(firstCard.find('.bs-name'));
+  I.click(firstCard);
+  I.seeInCurrentUrl('/product/');
+  I.waitForVisible('.specs-table', 15);
+  I.see(productName, 'h1');
+  I.see('Model GPU', '.specs-table');
+  I.see('Dung lượng VRAM', '.specs-table');
 });

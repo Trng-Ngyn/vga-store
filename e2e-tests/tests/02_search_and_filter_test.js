@@ -1,17 +1,19 @@
-Feature('Tìm kiếm và Lọc sản phẩm Card Đồ Họa');
+const assert = require('node:assert/strict');
+const resultNames = '.shop-product-grid .card-name';
 
-Scenario('Tìm kiếm card màn hình với từ khóa RTX', ({ I }) => {
-  I.amOnPage('/');
-  I.fillField('input[placeholder*="Tìm kiếm"]', 'RTX');
-  I.pressKey('Enter');
-  // Kết quả tìm kiếm phải chứa các sản phẩm liên quan RTX
-  I.see('RTX');
+Feature('Tìm kiếm sản phẩm Card Đồ Họa').tag('@catalog');
+
+Scenario('Tìm kiếm từ khóa RTX trả về các sản phẩm RTX', async ({ I }) => {
+  I.searchProduct('RTX');
+  I.waitForVisible(resultNames, 10);
+  const names = await I.grabTextFromAll(resultNames);
+  assert.ok(names.some(name => /RTX/i.test(name)), 'Kết quả phải có ít nhất một sản phẩm RTX');
 });
 
-Scenario('Tìm kiếm với từ khóa không tồn tại trả về thông báo phù hợp (Negative Test)', ({ I }) => {
-  I.amOnPage('/');
-  I.fillField('input[placeholder*="Tìm kiếm"]', 'XYZ9999NONEXIST');
-  I.pressKey('Enter');
-  // Kiểm tra hệ thống hiển thị thông báo không tìm thấy kết quả
-  I.see('Không tìm thấy sản phẩm');
+Scenario('Từ khóa không tồn tại cho kết quả rỗng', ({ I }) => {
+  I.searchProduct('XYZ9999NONEXIST');
+  I.waitForVisible('.shop-empty', 10);
+  I.see('KHÔNG TÌM THẤY LINH KIỆN PHÙ HỢP', '.shop-empty h3');
+  I.see('0 sản phẩm', '.result-count');
+  I.dontSeeElement(resultNames);
 });

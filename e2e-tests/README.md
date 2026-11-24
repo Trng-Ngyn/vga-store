@@ -24,7 +24,14 @@ npm test
 
 # Chạy ở chế độ ngầm (Headless - dùng cho CI/CD):
 npm run test:headless
+
+# Chạy riêng nhóm test KAN-12 đến KAN-14:
+npm run test:headless -- --grep '@catalog'
+npm run test:ui -- --grep '@catalog'
 ```
+
+Khởi động frontend, backend và nạp dữ liệu mẫu trước khi chạy. Nhóm test
+`@catalog` cần danh mục có ít nhất một sản phẩm RTX.
 
 ### 4. Cấu hình biến môi trường
 Mặc định bài test gọi đến `http://localhost:5173`. Có thể đổi sang server khác:

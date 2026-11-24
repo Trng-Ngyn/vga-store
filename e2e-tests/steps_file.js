@@ -11,9 +11,11 @@ module.exports = function() {
 
     // Helper function: Tìm kiếm VGA
     searchProduct: function(keyword) {
-      this.amOnPage('/');
-      this.fillField('input[placeholder*="Tìm kiếm"]', keyword);
-      this.pressKey('Enter');
+      const field = 'input[placeholder="Tìm kiếm linh kiện..."]';
+      this.amOnPage('/products');
+      this.waitForVisible('.shop-product-grid .card-name', 15);
+      this.fillField(field, keyword);
+      this.seeInField(field, keyword);
     }
   });
 };
