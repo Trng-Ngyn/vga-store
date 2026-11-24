@@ -48,9 +48,17 @@ jobs:
         working-directory: backend/vgashop
         run: mvn -B package -DskipTests
 
-      - name: Start and seed PostgreSQL
+      - name: Start PostgreSQL
+        run: >
+          docker run --detach --name catalog-postgres
+          --publish 127.0.0.1:5433:5432
+          --env POSTGRES_USER=postgres
+          --env POSTGRES_PASSWORD=3007
+          --env POSTGRES_DB=vga_store
+          postgres:17-alpine
+
+      - name: Load repository schema and seed data
         run: |
-          docker run --detach --name catalog-postgres +            --publish 127.0.0.1:5433:5432 +            --env POSTGRES_USER=postgres +            --env POSTGRES_PASSWORD=3007 +            --env POSTGRES_DB=vga_store +            postgres:17-alpine
           if ! timeout 60s bash -c 'until docker exec catalog-postgres pg_isready -h 127.0.0.1 -U postgres -d vga_store; do sleep 2; done'; then
             docker logs catalog-postgres
             exit 1
