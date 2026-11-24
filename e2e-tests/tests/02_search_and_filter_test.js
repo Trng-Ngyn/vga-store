@@ -17,3 +17,15 @@ Scenario('Từ khóa không tồn tại cho kết quả rỗng', ({ I }) => {
   I.see('0 sản phẩm', '.result-count');
   I.dontSeeElement(resultNames);
 });
+
+Scenario('Xóa bộ lọc khôi phục danh sách sản phẩm', async ({ I }) => {
+  const searchField = 'input[placeholder="Tìm kiếm linh kiện..."]';
+  I.searchProduct('XYZ9999NONEXIST');
+  I.waitForVisible('.shop-empty', 10);
+  I.click('.shop-empty .btn-reset-filter');
+  I.seeInField(searchField, '');
+  I.waitForVisible(resultNames, 10);
+  I.dontSeeElement('.shop-empty');
+  const count = await I.grabTextFrom('.result-count');
+  assert.match(count.trim(), /^[1-9]\d* sản phẩm$/);
+});
