@@ -1,50 +1,78 @@
-name: "CodeceptJS - E2E Acceptance Testing"
+name: CodeceptJS - E2E Acceptance Testing
 
 on:
   workflow_dispatch:
   pull_request:
-    branches: [ main, master ]
+    branches: [main, master]
   push:
-    branches: [ main, master ]
+    branches: [main, master, 'khoi/kan-12-14-e2e']
+
+permissions:
+  contents: read
 
 jobs:
-  e2e-tests:
-    name: "Run CodeceptJS E2E Test Suite"
+  catalog-e2e:
+    name: Test catalog with Spring Boot and PostgreSQL
     runs-on: ubuntu-latest
-
+    timeout-minutes: 20
+    env:
+      BASE_URL: http://localhost:5173
     steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
-
-      - name: Set up Node.js 20
-        uses: actions/setup-node@v4
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
-          node-version: 20
-          cache: 'npm'
-          cache-dependency-path: e2e-tests/package.json
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: |
+            e2e-tests/package-lock.json
+            fontend/user/package-lock.json
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: maven
 
-      - name: Install E2E Dependencies
-        working-directory: ./e2e-tests
-        run: npm install
-
-      - name: Install Playwright Browsers
-        working-directory: ./e2e-tests
-        run: npx playwright install chromium
-
-      - name: Run E2E Tests (Headless)
-        working-directory: ./e2e-tests
-        env:
-          HEADLESS: true
-          BASE_URL: https://demo-vga-store.example.com
+      - name: Install E2E dependencies and Chromium
+        working-directory: e2e-tests
         run: |
-          mkdir -p output
-          npm run test:headless || true
+          npm ci
+          npx playwright install --with-deps chromium
 
-      - name: Upload E2E Test Screenshots / Artifacts
-        uses: actions/upload-artifact@v4
+      - name: Build customer frontend
+        working-directory: fontend/user
+        run: |
+          npm install --no-audit --no-fund
+          npm run build
+
+      - name: Build backend
+        working-directory: backend/vgashop
+        run: mvn -B package -DskipTests
+
+      - name: Start PostgreSQL and load repository seed data
+        run: |
+          docker compose up -d db
+          timeout 90s bash -c 'until docker compose exec -T db pg_isready -h 127.0.0.1 -U postgres -d vga_store; do sleep 2; done'
+
+      - name: Start backend and customer frontend
+        env:
+          SPRING_PROFILES_ACTIVE: prod
+          SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5433/vga_store
+          SPRING_DATASOURCE_USERNAME: postgres
+          SPRING_DATASOURCE_PASSWORD: '3007'
+        run: |
+          mkdir -p e2e-tests/output
+          java -jar backend/vgashop/target/vgashop-0.0.1-SNAPSHOT.jar > e2e-tests/output/backend.log 2>&1 &
+          npm --prefix fontend/user run preview -- --host 127.0.0.1 --port 5173 --strictPort > e2e-tests/output/frontend.log 2>&1 &
+          timeout 90s bash -c 'until curl -fsS "$BASE_URL" > /dev/null && curl -fsS "http://localhost:8080/api/products?size=100" | jq -e ".data.content | any(.name | test(\"RTX\"; \"i\"))" > /dev/null; do sleep 2; done'
+
+      - name: Run catalog acceptance tests
+        working-directory: e2e-tests
+        run: npm run test:headless -- --grep '@catalog'
+
+      - name: Save test evidence and service logs
         if: always()
+        uses: actions/upload-artifact@v4
         with:
-          name: codecept-test-output
+          name: codecept-catalog-output
           path: e2e-tests/output/
           if-no-files-found: ignore
-
