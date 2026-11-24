@@ -48,10 +48,17 @@ jobs:
         working-directory: backend/vgashop
         run: mvn -B package -DskipTests
 
-      - name: Start PostgreSQL and load repository seed data
+      - name: Start and seed PostgreSQL
         run: |
-          docker compose up -d db
-          timeout 90s bash -c 'until docker compose exec -T db pg_isready -h 127.0.0.1 -U postgres -d vga_store; do sleep 2; done'
+          docker run --detach --name catalog-postgres +            --publish 127.0.0.1:5433:5432 +            --env POSTGRES_USER=postgres +            --env POSTGRES_PASSWORD=3007 +            --env POSTGRES_DB=vga_store +            postgres:17-alpine
+          if ! timeout 60s bash -c 'until docker exec catalog-postgres pg_isready -h 127.0.0.1 -U postgres -d vga_store; do sleep 2; done'; then
+            docker logs catalog-postgres
+            exit 1
+          fi
+          for sql in database/create_tables.sql database/seed_vga.sql; do
+            echo "Loading $sql"
+            docker exec -i catalog-postgres psql -X --quiet --set=ON_ERROR_STOP=1 --username=postgres --dbname=vga_store < "$sql"
+          done
 
       - name: Start backend and customer frontend
         env:
