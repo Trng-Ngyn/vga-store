@@ -58,6 +58,7 @@ public class SecurityConfig {
                 .requestMatchers("/api/payments/vnpay/callback").permitAll()
                 .requestMatchers("/api/payments/momo/callback").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/service-policies/**").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/settings/public").permitAll()
 
                 // === ADMIN endpoints ===
                 .requestMatchers("/api/admin/**").hasRole("ADMIN")

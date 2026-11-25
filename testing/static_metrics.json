@@ -1,0 +1,182 @@
+{
+  "backend_main_java": {
+    "files": 99,
+    "total_lines": 9165,
+    "code_lines": 6749,
+    "comment_lines": 500,
+    "comment_ratio_pct": 5.46,
+    "hotspots": [
+      {
+        "file": "backend/vgashop/src/main/java/com/example/vgashop/service/AdminService.java",
+        "loc": 767,
+        "code_loc": 613,
+        "approx_file_vg": 80
+      },
+      {
+        "file": "backend/vgashop/src/main/java/com/example/vgashop/service/ProductService.java",
+        "loc": 334,
+        "code_loc": 211,
+        "approx_file_vg": 43
+      },
+      {
+        "file": "backend/vgashop/src/main/java/com/example/vgashop/service/OrderService.java",
+        "loc": 310,
+        "code_loc": 266,
+        "approx_file_vg": 27
+      },
+      {
+        "file": "backend/vgashop/src/main/java/com/example/vgashop/service/BrandService.java",
+        "loc": 173,
+        "code_loc": 108,
+        "approx_file_vg": 22
+      },
+      {
+        "file": "backend/vgashop/src/main/java/com/example/vgashop/service/UserService.java",
+        "loc": 209,
+        "code_loc": 169,
+        "approx_file_vg": 18
+      },
+      {
+        "file": "backend/vgashop/src/main/java/com/example/vgashop/utils/VNPayUtils.java",
+        "loc": 103,
+        "code_loc": 88,
+        "approx_file_vg": 17
+      },
+      {
+        "file": "backend/vgashop/src/main/java/com/example/vgashop/service/PaymentService.java",
+        "loc": 180,
+        "code_loc": 151,
+        "approx_file_vg": 13
+      },
+      {
+        "file": "backend/vgashop/src/main/java/com/example/vgashop/service/CategoryService.java",
+        "loc": 123,
+        "code_loc": 78,
+        "approx_file_vg": 12
+      },
+      {
+        "file": "backend/vgashop/src/main/java/com/example/vgashop/service/AuthService.java",
+        "loc": 114,
+        "code_loc": 96,
+        "approx_file_vg": 11
+      },
+      {
+        "file": "backend/vgashop/src/main/java/com/example/vgashop/service/CartService.java",
+        "loc": 198,
+        "code_loc": 145,
+        "approx_file_vg": 9
+      },
+      {
+        "file": "backend/vgashop/src/main/java/com/example/vgashop/utils/MomoUtils.java",
+        "loc": 82,
+        "code_loc": 70,
+        "approx_file_vg": 9
+      },
+      {
+        "file": "backend/vgashop/src/main/java/com/example/vgashop/service/PaymentExpiryScheduler.java",
+        "loc": 68,
+        "code_loc": 55,
+        "approx_file_vg": 6
+      },
+      {
+        "file": "backend/vgashop/src/main/java/com/example/vgashop/security/JwtAuthFilter.java",
+        "loc": 51,
+        "code_loc": 43,
+        "approx_file_vg": 5
+      },
+      {
+        "file": "backend/vgashop/src/main/java/com/example/vgashop/security/JwtFilter.java",
+        "loc": 57,
+        "code_loc": 42,
+        "approx_file_vg": 5
+      },
+      {
+        "file": "backend/vgashop/src/main/java/com/example/vgashop/security/JwtUtil.java",
+        "loc": 73,
+        "code_loc": 59,
+        "approx_file_vg": 2
+      }
+    ]
+  },
+  "backend_test_java": {
+    "files": 13,
+    "total_lines": 2318,
+    "code_lines": 1929,
+    "comment_lines": 23,
+    "comment_ratio_pct": 0.99,
+    "hotspots": [
+      {
+        "file": "backend/vgashop/src/test/java/com/example/vgashop/service/UserAndExceptionWhiteBoxTest.java",
+        "loc": 185,
+        "code_loc": 156,
+        "approx_file_vg": 7
+      },
+      {
+        "file": "backend/vgashop/src/test/java/com/example/vgashop/service/AdminServiceWhiteBoxTest.java",
+        "loc": 317,
+        "code_loc": 271,
+        "approx_file_vg": 5
+      },
+      {
+        "file": "backend/vgashop/src/test/java/com/example/vgashop/security/JwtUtilWhiteBoxTest.java",
+        "loc": 79,
+        "code_loc": 65,
+        "approx_file_vg": 4
+      },
+      {
+        "file": "backend/vgashop/src/test/java/com/example/vgashop/service/CatalogExtendedWhiteBoxTest.java",
+        "loc": 238,
+        "code_loc": 204,
+        "approx_file_vg": 4
+      },
+      {
+        "file": "backend/vgashop/src/test/java/com/example/vgashop/service/AuthServiceWhiteBoxTest.java",
+        "loc": 236,
+        "code_loc": 196,
+        "approx_file_vg": 3
+      },
+      {
+        "file": "backend/vgashop/src/test/java/com/example/vgashop/utils/PaymentUtilsWhiteBoxTest.java",
+        "loc": 143,
+        "code_loc": 118,
+        "approx_file_vg": 3
+      },
+      {
+        "file": "backend/vgashop/src/test/java/com/example/vgashop/service/OrderServiceWhiteBoxTest.java",
+        "loc": 240,
+        "code_loc": 194,
+        "approx_file_vg": 2
+      },
+      {
+        "file": "backend/vgashop/src/test/java/com/example/vgashop/service/PaymentAndSettingServicesWhiteBoxTest.java",
+        "loc": 208,
+        "code_loc": 174,
+        "approx_file_vg": 2
+      },
+      {
+        "file": "backend/vgashop/src/test/java/com/example/vgashop/service/CartServiceWhiteBoxTest.java",
+        "loc": 203,
+        "code_loc": 164,
+        "approx_file_vg": 1
+      },
+      {
+        "file": "backend/vgashop/src/test/java/com/example/vgashop/service/CatalogServicesWhiteBoxTest.java",
+        "loc": 165,
+        "code_loc": 135,
+        "approx_file_vg": 1
+      }
+    ]
+  },
+  "frontend_user_src": {
+    "files": 53,
+    "total_lines": 7445
+  },
+  "frontend_admin_src": {
+    "files": 34,
+    "total_lines": 3132
+  },
+  "e2e_tests_js": {
+    "files": 7,
+    "total_lines": 148
+  }
+}

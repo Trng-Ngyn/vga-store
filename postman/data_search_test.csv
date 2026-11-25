@@ -1,0 +1,6 @@
+searchTerm,expectedMinCount,description
+RTX,1,Tim kiem card do hoa RTX hop le
+GTX,1,Tim kiem card do hoa GTX hop le
+ASUS,1,Tim kiem theo thuong hieu Asus
+TENTHAOTRONGKHONGCO,0,Tim kiem san pham khong ton tai
+,0,Tim kiem tu khoa rong

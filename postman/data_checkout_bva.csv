@@ -1,0 +1,7 @@
+fullName,phone,address,quantity,expectedCode,testCaseId,description
+Tran Dinh Trong,0908123456,So 1 Vo Van Ngan Thu Duc,2,200,TC_01,Happy Path valid order
+An,0901234567,Ha Noi,1,200,TC_02,Min Boundary valid values
+Phan Khoi Dev,0912345678,123 Nguyen Trai Q1 HCM,5,200,TC_04,Nominal valid values
+A,0908123456,So 1 Vo Van Ngan Thu Duc,1,400,TC_05,Negative BVA Name 1 char
+Tran Dinh Trong,090812345,So 1 Vo Van Ngan Thu Duc,1,400,TC_08,Negative BVA Phone 9 digits
+Tran Dinh Trong,0908123456,HCM,1,400,TC_15,Negative BVA Address 3 chars

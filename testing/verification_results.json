@@ -1,0 +1,92 @@
+{
+  "postman_full_local": {
+    "exit_code": 0,
+    "iterations": {
+      "executed": 1,
+      "failed": 0
+    },
+    "requests": {
+      "executed": 54,
+      "failed": 0
+    },
+    "test_scripts": {
+      "executed": 54,
+      "failed": 0
+    },
+    "assertions": {
+      "executed": 118,
+      "failed": 0
+    },
+    "total_duration": "5.1 s",
+    "cloud_run_url": ""
+  },
+  "postman_dd_login": {
+    "exit_code": 0,
+    "iterations": {
+      "executed": 6,
+      "failed": 0
+    },
+    "requests": {
+      "executed": 42,
+      "failed": 0
+    },
+    "test_scripts": {
+      "executed": 42,
+      "failed": 0
+    },
+    "assertions": {
+      "executed": 78,
+      "failed": 0
+    },
+    "total_duration": "4.5 s",
+    "cloud_run_url": ""
+  },
+  "postman_dd_search": {
+    "exit_code": 0,
+    "iterations": {
+      "executed": 5,
+      "failed": 0
+    },
+    "requests": {
+      "executed": 40,
+      "failed": 0
+    },
+    "test_scripts": {
+      "executed": 40,
+      "failed": 0
+    },
+    "assertions": {
+      "executed": 135,
+      "failed": 0
+    },
+    "total_duration": "3.6 s",
+    "cloud_run_url": ""
+  },
+  "postman_dd_checkout": {
+    "exit_code": 0,
+    "iterations": {
+      "executed": 6,
+      "failed": 0
+    },
+    "requests": {
+      "executed": 36,
+      "failed": 0
+    },
+    "test_scripts": {
+      "executed": 36,
+      "failed": 0
+    },
+    "assertions": {
+      "executed": 66,
+      "failed": 0
+    },
+    "total_duration": "3.5 s",
+    "cloud_run_url": ""
+  },
+  "codecept_e2e": {
+    "exit_code": 0,
+    "passing": 20,
+    "failing": 0,
+    "tail": "    I am on page \"http://localhost:5174/login\"\n    I fill field \"input[type=\"text\"], input[name=\"username\"], input[placeholder*=\"tài khoản\"]\", \"admin\"\n    I fill field \"input[type=\"password\"]\", \"SaiMatKhau999\"\n    I click \"button[type=\"submit\"]\"\n    I see in current url \"/login\"\n  √ OK in 2524ms\n\n  SEC_04: Truy cập thẳng trang quản trị khi chưa có JWT sẽ chuyển hướng về Login\n  Scenario()\n    I am on page \"http://localhost:5174/products\"\n    I see in current url \"/login\"\n  √ OK in 581ms\n\n\n  OK  | 20 passed   // 36s"
+  }
+}

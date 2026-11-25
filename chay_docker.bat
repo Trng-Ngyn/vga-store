@@ -21,6 +21,11 @@ if %errorlevel% neq 0 (
 echo.
 echo [2] Dang khoi chay 4 container theo docker-compose.yml...
 docker compose up -d
+if %errorlevel% neq 0 (
+    echo [THONG BAO] Phat hien loi network/container cu, dang tao lai dong bo...
+    docker compose down
+    docker compose up -d
+)
 
 echo.
 echo [3] Danh sach cac container dang hoat dong:

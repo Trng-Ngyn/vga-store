@@ -6,7 +6,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { addToCartDb } from '../../redux/cartSlice';
 import { toggleWishlist } from '../../redux/wishlistSlice';
 import RelatedProducts from './RelatedProducts';
-import { toastError } from '../../utils/alertUtils';
+import { toastError, toastSuccess } from '../../utils/alertUtils';
 
 const ProductDetail = () => {
   const { id } = useParams();

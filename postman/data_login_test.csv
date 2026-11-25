@@ -1,0 +1,7 @@
+username,password,expectedStatus,description
+admin,admin123,200,Dang nhap hop le quyen Admin
+demotester,123456,200,Dang nhap hop le quyen User
+wronguser,123456,400,Tai khoan khong ton tai
+admin,wrongpass,400,Sai mat khau
+admin,,400,Mat khau de trong
+,admin123,400,Username de trong

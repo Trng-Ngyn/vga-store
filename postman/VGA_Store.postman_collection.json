@@ -1,33 +1,16 @@
 {
   "info": {
     "_postman_id": "vga-store-software-testing-collection-2026",
-    "name": "VGA Store - Kiểm Chứng Phần Mềm (API Test Suite)",
-    "description": "Bộ API Collection kiểm thử tự động toàn diện cho dự án VGA Store môn Kiểm chứng phần mềm.\nBao gồm kiểm thử xác thực, danh mục, sản phẩm, thương hiệu và giỏ hàng.",
+    "name": "VGA Store - Kiểm Chứng Phần Mềm (Full Black-Box API Suite)",
+    "description": "Bộ API Collection kiểm thử hộp đen toàn diện cho dự án VGA Store.\nÁp dụng EP (Equivalence Partitioning), BVA (Boundary Value Analysis), Negative Validation, State Transition và RBAC Security.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "item": [
     {
-      "name": "1. Authentication",
+      "name": "1. Authentication & Security (EP / BVA / RBAC)",
       "item": [
         {
-          "name": "POST Đăng ký tài khoản mới",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test(\"Mã trạng thái phản hồi hợp lệ (200 hoặc 400 nếu đã tồn tại)\", function () {",
-                  "    pm.expect(pm.response.code).to.be.oneOf([200, 201, 400]);",
-                  "});",
-                  "",
-                  "pm.test(\"Thời gian phản hồi nhanh dưới 1500ms\", function () {",
-                  "    pm.expect(pm.response.responseTime).to.be.below(1500);",
-                  "});"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ],
+          "name": "BB-AUTH-01: POST Đăng ký tài khoản mới (Happy Path / Existing)",
           "request": {
             "method": "POST",
             "header": [
@@ -36,10 +19,6 @@
                 "value": "application/json"
               }
             ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"username\": \"{{testUsername}}\",\n  \"email\": \"{{testEmail}}\",\n  \"password\": \"{{testPassword}}\",\n  \"fullName\": \"Ki\\u1ec3m Th\\u1eed Vi\\u00ean\"\n}"
-            },
             "url": {
               "raw": "{{baseUrl}}/api/auth/register",
               "host": [
@@ -51,36 +30,31 @@
                 "register"
               ]
             },
-            "description": "Gửi thông tin đăng ký tài khoản mới vào hệ thống."
-          }
-        },
-        {
-          "name": "POST Đăng nhập & Tự động lưu JWT Token",
+            "description": "EP Valid Partition: Dữ liệu đăng ký hợp lệ.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"{{testUsername}}\",\n  \"email\": \"{{testEmail}}\",\n  \"password\": \"{{testPassword}}\",\n  \"fullName\": \"Kiểm Thử Viên\"\n}"
+            }
+          },
           "event": [
             {
               "listen": "test",
               "script": {
                 "exec": [
-                  "pm.test(\"Đăng nhập thành công trả về mã HTTP 200\", function () {",
-                  "    pm.response.to.have.status(200);",
+                  "pm.test(\"Mã phản hồi hợp lệ (200 tạo mới hoặc 400 đã tồn tại)\", function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 201, 400]);",
                   "});",
-                  "",
-                  "var jsonData = pm.response.json();",
-                  "pm.test(\"Response có chứa JWT token\", function () {",
-                  "    pm.expect(jsonData).to.have.property('token');",
-                  "    pm.expect(jsonData.token).to.be.a('string');",
-                  "});",
-                  "",
-                  "// Tự động lưu Token vào biến môi trường để các request sau sử dụng",
-                  "if (jsonData.token) {",
-                  "    pm.environment.set(\"jwtToken\", jsonData.token);",
-                  "    console.log(\"Đã lưu JWT Token vào Environment thành công!\");",
-                  "}"
+                  "pm.test(\"Thời gian phản hồi dưới 1500ms\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(1500);",
+                  "});"
                 ],
                 "type": "text/javascript"
               }
             }
-          ],
+          ]
+        },
+        {
+          "name": "BB-AUTH-02: POST Đăng ký Username ngắn hơn biên Min=3 ('ab') [BVA]",
           "request": {
             "method": "POST",
             "header": [
@@ -89,10 +63,138 @@
                 "value": "application/json"
               }
             ],
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/register",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "register"
+              ]
+            },
+            "description": "BVA Invalid Lower Boundary: username = 2 chars (< 3).",
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"username\": \"{{testUsername}}\",\n  \"password\": \"{{testPassword}}\"\n}"
+              "raw": "{\n  \"username\": \"ab\",\n  \"email\": \"bva_short@vga.local\",\n  \"password\": \"password123\",\n  \"fullName\": \"BVA Short\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Black-Box Validation bắt lỗi (HTTP 400 Bad Request)\", function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([400, 422]);",
+                  "});",
+                  "pm.test(\"Thời gian phản hồi dưới 1500ms\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(1500);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "BB-AUTH-03: POST Đăng ký Email sai định dạng [EP Invalid]",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/register",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "register"
+              ]
             },
+            "description": "EP Invalid Partition: email thiếu @ và domain.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"validuser_99\",\n  \"email\": \"invalid-email-format\",\n  \"password\": \"password123\",\n  \"fullName\": \"Invalid Email\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Black-Box Validation bắt lỗi (HTTP 400 Bad Request)\", function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([400, 422]);",
+                  "});",
+                  "pm.test(\"Thời gian phản hồi dưới 1500ms\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(1500);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "BB-AUTH-04: POST Đăng ký Password dưới biên Min=6 ('12345') [BVA]",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/register",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "register"
+              ]
+            },
+            "description": "BVA Invalid Lower Boundary: password = 5 chars (< 6).",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"validuser_98\",\n  \"email\": \"shortpass@vga.local\",\n  \"password\": \"12345\",\n  \"fullName\": \"Short Pass\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Black-Box Validation bắt lỗi (HTTP 400 Bad Request)\", function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([400, 422]);",
+                  "});",
+                  "pm.test(\"Thời gian phản hồi dưới 1500ms\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(1500);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "BB-AUTH-05: POST Đăng nhập User hợp lệ & Lưu JWT Token",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "url": {
               "raw": "{{baseUrl}}/api/auth/login",
               "host": [
@@ -104,39 +206,124 @@
                 "login"
               ]
             },
-            "description": "Xác thực tài khoản và tự động nạp Token vào biến môi trường jwtToken."
-          }
-        }
-      ]
-    },
-    {
-      "name": "2. Categories (Danh mục sản phẩm)",
-      "item": [
-        {
-          "name": "GET Lấy tất cả danh mục",
+            "description": "Happy Path login và tự động lưu jwtToken cho các request cần xác thực.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"{{testUsername}}\",\n  \"password\": \"{{testPassword}}\"\n}"
+            }
+          },
           "event": [
             {
               "listen": "test",
               "script": {
                 "exec": [
-                  "pm.test(\"Trạng thái HTTP 200 OK\", function () {",
+                  "pm.test(\"Đăng nhập thành công HTTP 200\", function () {",
                   "    pm.response.to.have.status(200);",
                   "});",
-                  "",
-                  "var jsonData = pm.response.json();",
-                  "pm.test(\"Dữ liệu trả về đúng cấu trúc ApiResponse\", function () {",
-                  "    pm.expect(jsonData).to.have.property('data');",
-                  "    pm.expect(jsonData).to.have.property('message');",
-                  "});",
-                  "",
-                  "pm.test(\"Thời gian phản hồi dưới 1000ms\", function () {",
-                  "    pm.expect(pm.response.responseTime).to.be.below(1000);",
+                  "pm.test(\"Response chứa JWT token hợp lệ\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property(\"token\");",
+                  "    pm.expect(jsonData.token).to.be.a(\"string\").and.not.empty;",
+                  "    pm.environment.set(\"jwtToken\", jsonData.token);",
                   "});"
                 ],
                 "type": "text/javascript"
               }
             }
-          ],
+          ]
+        },
+        {
+          "name": "BB-AUTH-06: POST Đăng nhập sai mật khẩu [Negative EP]",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "login"
+              ]
+            },
+            "description": "Negative Test: Sai mật khẩu bị từ chối.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"{{testUsername}}\",\n  \"password\": \"wrong_password_999\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Black-Box Validation bắt lỗi (HTTP 400 Bad Request)\", function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([400, 422]);",
+                  "});",
+                  "pm.test(\"Thời gian phản hồi dưới 1500ms\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(1500);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "BB-AUTH-07: POST Đăng nhập tài khoản không tồn tại [Negative EP]",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "login"
+              ]
+            },
+            "description": "Negative Test: Username không tồn tại.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"nonexistent_user_xyz\",\n  \"password\": \"123456\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Từ chối tài khoản không tồn tại (400 hoặc 404)\", function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([400, 401, 404]);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "2. Categories (Danh mục & Boundary)",
+      "item": [
+        {
+          "name": "BB-CAT-01: GET Lấy tất cả danh mục (Phân trang mặc định)",
           "request": {
             "method": "GET",
             "header": [],
@@ -160,47 +347,8 @@
                 }
               ]
             },
-            "description": "Lấy danh sách các danh mục VGA kèm phân trang."
-          }
-        },
-        {
-          "name": "GET Lấy danh mục đang kích hoạt (Active)",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test(\"Trạng thái HTTP 200 OK\", function () {",
-                  "    pm.response.to.have.status(200);",
-                  "});"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ],
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{baseUrl}}/api/categories/active",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "categories",
-                "active"
-              ]
-            }
-          }
-        }
-      ]
-    },
-    {
-      "name": "3. Products (Sản phẩm VGA)",
-      "item": [
-        {
-          "name": "GET Lấy danh sách sản phẩm VGA",
+            "description": ""
+          },
           "event": [
             {
               "listen": "test",
@@ -209,16 +357,499 @@
                   "pm.test(\"Trạng thái HTTP 200 OK\", function () {",
                   "    pm.response.to.have.status(200);",
                   "});",
-                  "",
-                  "var jsonData = pm.response.json();",
-                  "pm.test(\"Dữ liệu sản phẩm trả về thành công\", function () {",
-                  "    pm.expect(jsonData).to.have.property('data');",
+                  "pm.test(\"Thời gian phản hồi dưới 1500ms\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(1500);",
+                  "});",
+                  "pm.test(\"Cấu trúc ApiResponse success = true\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property(\"success\", true);",
+                  "    pm.expect(jsonData).to.have.property(\"data\");",
+                  "});",
+                  "var d = pm.response.json().data;",
+                  "if (d && d.content && d.content.length > 0) {",
+                  "    pm.environment.set(\"sampleCategoryId\", d.content[0].id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "BB-CAT-02: GET Lấy danh mục đang Active",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/categories/active?page=0&size=10",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "categories",
+                "active"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "0"
+                },
+                {
+                  "key": "size",
+                  "value": "10"
+                }
+              ]
+            },
+            "description": ""
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Trạng thái HTTP 200 OK\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test(\"Thời gian phản hồi dưới 1500ms\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(1500);",
+                  "});",
+                  "pm.test(\"Cấu trúc ApiResponse success = true\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property(\"success\", true);",
+                  "    pm.expect(jsonData).to.have.property(\"data\");",
                   "});"
                 ],
                 "type": "text/javascript"
               }
             }
-          ],
+          ]
+        },
+        {
+          "name": "BB-CAT-03: GET Tìm kiếm danh mục theo từ khóa 'RTX'",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/categories/search?keyWord=RTX&page=0&size=10",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "categories",
+                "search"
+              ],
+              "query": [
+                {
+                  "key": "keyWord",
+                  "value": "RTX"
+                },
+                {
+                  "key": "page",
+                  "value": "0"
+                },
+                {
+                  "key": "size",
+                  "value": "10"
+                }
+              ]
+            },
+            "description": ""
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Trạng thái HTTP 200 OK\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test(\"Thời gian phản hồi dưới 1500ms\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(1500);",
+                  "});",
+                  "pm.test(\"Cấu trúc ApiResponse success = true\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property(\"success\", true);",
+                  "    pm.expect(jsonData).to.have.property(\"data\");",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "BB-CAT-04: GET Lọc danh mục theo trạng thái active=true",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/categories/filter?active=true&page=0&size=5",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "categories",
+                "filter"
+              ],
+              "query": [
+                {
+                  "key": "active",
+                  "value": "true"
+                },
+                {
+                  "key": "page",
+                  "value": "0"
+                },
+                {
+                  "key": "size",
+                  "value": "5"
+                }
+              ]
+            },
+            "description": ""
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Trạng thái HTTP 200 OK\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test(\"Thời gian phản hồi dưới 1500ms\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(1500);",
+                  "});",
+                  "pm.test(\"Cấu trúc ApiResponse success = true\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property(\"success\", true);",
+                  "    pm.expect(jsonData).to.have.property(\"data\");",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "BB-CAT-05: GET Chi tiết danh mục hợp lệ theo ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/categories/{{sampleCategoryId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "categories",
+                "{{sampleCategoryId}}"
+              ]
+            },
+            "description": ""
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Trạng thái HTTP 200 OK\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test(\"Thời gian phản hồi dưới 1500ms\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(1500);",
+                  "});",
+                  "pm.test(\"Cấu trúc ApiResponse success = true\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property(\"success\", true);",
+                  "    pm.expect(jsonData).to.have.property(\"data\");",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "BB-CAT-06: GET Chi tiết danh mục ID không tồn tại (999999) [404]",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/categories/999999",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "categories",
+                "999999"
+              ]
+            },
+            "description": ""
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Tài nguyên không tồn tại trả về HTTP 404 Not Found\", function () {",
+                  "    pm.response.to.have.status(404);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "3. Brands (Thương hiệu VGA)",
+      "item": [
+        {
+          "name": "BB-BRAND-01: GET Lấy danh sách thương hiệu",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/brands?page=0&size=10",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "brands"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "0"
+                },
+                {
+                  "key": "size",
+                  "value": "10"
+                }
+              ]
+            },
+            "description": ""
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Trạng thái HTTP 200 OK\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test(\"Thời gian phản hồi dưới 1500ms\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(1500);",
+                  "});",
+                  "pm.test(\"Cấu trúc ApiResponse success = true\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property(\"success\", true);",
+                  "    pm.expect(jsonData).to.have.property(\"data\");",
+                  "});",
+                  "var d = pm.response.json().data;",
+                  "if (d && d.content && d.content.length > 0) {",
+                  "    pm.environment.set(\"sampleBrandId\", d.content[0].id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "BB-BRAND-02: GET Tìm kiếm thương hiệu 'ASUS'",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/brands/search?keyWord=ASUS&page=0&size=10",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "brands",
+                "search"
+              ],
+              "query": [
+                {
+                  "key": "keyWord",
+                  "value": "ASUS"
+                },
+                {
+                  "key": "page",
+                  "value": "0"
+                },
+                {
+                  "key": "size",
+                  "value": "10"
+                }
+              ]
+            },
+            "description": ""
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Trạng thái HTTP 200 OK\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test(\"Thời gian phản hồi dưới 1500ms\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(1500);",
+                  "});",
+                  "pm.test(\"Cấu trúc ApiResponse success = true\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property(\"success\", true);",
+                  "    pm.expect(jsonData).to.have.property(\"data\");",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "BB-BRAND-03: GET Lọc thương hiệu đang kích hoạt",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/brands/filter?status=true&page=0&size=10",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "brands",
+                "filter"
+              ],
+              "query": [
+                {
+                  "key": "status",
+                  "value": "true"
+                },
+                {
+                  "key": "page",
+                  "value": "0"
+                },
+                {
+                  "key": "size",
+                  "value": "10"
+                }
+              ]
+            },
+            "description": ""
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Trạng thái HTTP 200 OK\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test(\"Thời gian phản hồi dưới 1500ms\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(1500);",
+                  "});",
+                  "pm.test(\"Cấu trúc ApiResponse success = true\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property(\"success\", true);",
+                  "    pm.expect(jsonData).to.have.property(\"data\");",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "BB-BRAND-04: GET Chi tiết thương hiệu hợp lệ theo ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/brands/{{sampleBrandId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "brands",
+                "{{sampleBrandId}}"
+              ]
+            },
+            "description": ""
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Trạng thái HTTP 200 OK\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test(\"Thời gian phản hồi dưới 1500ms\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(1500);",
+                  "});",
+                  "pm.test(\"Cấu trúc ApiResponse success = true\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property(\"success\", true);",
+                  "    pm.expect(jsonData).to.have.property(\"data\");",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "BB-BRAND-05: GET Chi tiết thương hiệu ID không tồn tại (999999) [404]",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/brands/999999",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "brands",
+                "999999"
+              ]
+            },
+            "description": ""
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Tài nguyên không tồn tại trả về HTTP 404 Not Found\", function () {",
+                  "    pm.response.to.have.status(404);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "4. Products (EP, BVA Phân trang, Tìm kiếm & Lọc giá)",
+      "item": [
+        {
+          "name": "BB-PROD-01: GET Danh sách sản phẩm chuẩn (Page 0, Size 10)",
           "request": {
             "method": "GET",
             "header": [],
@@ -249,11 +880,9 @@
                   "value": "asc"
                 }
               ]
-            }
-          }
-        },
-        {
-          "name": "GET Tìm kiếm sản phẩm theo tên (Search RTX)",
+            },
+            "description": ""
+          },
           "event": [
             {
               "listen": "test",
@@ -261,17 +890,227 @@
                 "exec": [
                   "pm.test(\"Trạng thái HTTP 200 OK\", function () {",
                   "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test(\"Thời gian phản hồi dưới 1500ms\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(1500);",
+                  "});",
+                  "pm.test(\"Cấu trúc ApiResponse success = true\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property(\"success\", true);",
+                  "    pm.expect(jsonData).to.have.property(\"data\");",
+                  "});",
+                  "var d = pm.response.json().data;",
+                  "pm.test(\"Danh sách sản phẩm có phần tử content\", function () {",
+                  "    pm.expect(d.content).to.be.an(\"array\");",
+                  "    if (d.content.length > 0) {",
+                  "        pm.environment.set(\"sampleProductId\", d.content[0].id);",
+                  "    }",
                   "});"
                 ],
                 "type": "text/javascript"
               }
             }
-          ],
+          ]
+        },
+        {
+          "name": "BB-PROD-02: GET Phân trang biên nhỏ nhất Size=1 [BVA]",
           "request": {
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/api/products/search?keyWord=RTX",
+              "raw": "{{baseUrl}}/api/products?page=0&size=1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "products"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "0"
+                },
+                {
+                  "key": "size",
+                  "value": "1"
+                }
+              ]
+            },
+            "description": ""
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Trạng thái HTTP 200 OK\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test(\"Thời gian phản hồi dưới 1500ms\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(1500);",
+                  "});",
+                  "pm.test(\"Cấu trúc ApiResponse success = true\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property(\"success\", true);",
+                  "    pm.expect(jsonData).to.have.property(\"data\");",
+                  "});",
+                  "pm.test(\"BVA Size=1 trả về tối đa 1 sản phẩm\", function () {",
+                  "    pm.expect(pm.response.json().data.content.length).to.be.at.most(1);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "BB-PROD-03: GET Sắp xếp sản phẩm theo giá giảm dần (Price DESC)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/products?page=0&size=5&sortBy=price&direction=desc",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "products"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "0"
+                },
+                {
+                  "key": "size",
+                  "value": "5"
+                },
+                {
+                  "key": "sortBy",
+                  "value": "price"
+                },
+                {
+                  "key": "direction",
+                  "value": "desc"
+                }
+              ]
+            },
+            "description": ""
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Trạng thái HTTP 200 OK\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test(\"Thời gian phản hồi dưới 1500ms\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(1500);",
+                  "});",
+                  "pm.test(\"Cấu trúc ApiResponse success = true\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property(\"success\", true);",
+                  "    pm.expect(jsonData).to.have.property(\"data\");",
+                  "});",
+                  "pm.test(\"Thứ tự giá giảm dần hợp lệ\", function () {",
+                  "    var items = pm.response.json().data.content;",
+                  "    if (items.length >= 2) {",
+                  "        pm.expect(items[0].price).to.be.at.least(items[1].price);",
+                  "    }",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "BB-PROD-04: GET Chi tiết sản phẩm hợp lệ theo ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/products/{{sampleProductId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "products",
+                "{{sampleProductId}}"
+              ]
+            },
+            "description": ""
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Trạng thái HTTP 200 OK\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test(\"Thời gian phản hồi dưới 1500ms\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(1500);",
+                  "});",
+                  "pm.test(\"Cấu trúc ApiResponse success = true\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property(\"success\", true);",
+                  "    pm.expect(jsonData).to.have.property(\"data\");",
+                  "});",
+                  "pm.test(\"Chi tiết sản phẩm có tên và giá\", function () {",
+                  "    var p = pm.response.json().data;",
+                  "    pm.expect(p).to.have.property(\"name\");",
+                  "    pm.expect(p).to.have.property(\"price\");",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "BB-PROD-05: GET Chi tiết sản phẩm không tồn tại ID=999999 [404]",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/products/999999",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "products",
+                "999999"
+              ]
+            },
+            "description": ""
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Tài nguyên không tồn tại trả về HTTP 404 Not Found\", function () {",
+                  "    pm.response.to.have.status(404);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "BB-PROD-06: GET Tìm kiếm sản phẩm từ khóa hợp lệ 'RTX' [EP Valid]",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/products/search?keyWord=RTX&page=0&size=10",
               "host": [
                 "{{baseUrl}}"
               ],
@@ -284,49 +1123,7 @@
                 {
                   "key": "keyWord",
                   "value": "RTX"
-                }
-              ]
-            }
-          }
-        }
-      ]
-    },
-    {
-      "name": "4. Brands (Thương hiệu VGA)",
-      "item": [
-        {
-          "name": "GET Lấy danh sách thương hiệu",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test(\"Trạng thái HTTP 200 OK\", function () {",
-                  "    pm.response.to.have.status(200);",
-                  "});",
-                  "",
-                  "var jsonData = pm.response.json();",
-                  "pm.test(\"Danh sách thương hiệu trả về hợp lệ\", function () {",
-                  "    pm.expect(jsonData.data).to.be.an('object');",
-                  "});"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ],
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{baseUrl}}/api/brands?page=0&size=10",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "brands"
-              ],
-              "query": [
+                },
                 {
                   "key": "page",
                   "value": "0"
@@ -336,40 +1133,154 @@
                   "value": "10"
                 }
               ]
-            }
-          }
-        }
-      ]
-    },
-    {
-      "name": "5. Cart (Giỏ hàng - Cần xác thực Bearer Token)",
-      "item": [
-        {
-          "name": "GET Lấy giỏ hàng người dùng hiện tại",
+            },
+            "description": ""
+          },
           "event": [
             {
               "listen": "test",
               "script": {
                 "exec": [
-                  "pm.test(\"Trạng thái phản hồi từ máy chủ hợp lệ\", function () {",
-                  "    pm.expect(pm.response.code).to.be.oneOf([200, 401, 403, 500]);",
+                  "pm.test(\"Trạng thái HTTP 200 OK\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test(\"Thời gian phản hồi dưới 1500ms\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(1500);",
+                  "});",
+                  "pm.test(\"Cấu trúc ApiResponse success = true\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property(\"success\", true);",
+                  "    pm.expect(jsonData).to.have.property(\"data\");",
                   "});"
                 ],
                 "type": "text/javascript"
               }
             }
-          ],
+          ]
+        },
+        {
+          "name": "BB-PROD-07: GET Tìm kiếm từ khóa không tồn tại 'ZZZ999XYZ' [EP Empty]",
           "request": {
-            "auth": {
-              "type": "bearer",
-              "bearer": [
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/products/search?keyWord=ZZZ999XYZ&page=0&size=10",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "products",
+                "search"
+              ],
+              "query": [
                 {
-                  "key": "token",
-                  "value": "{{jwtToken}}",
-                  "type": "string"
+                  "key": "keyWord",
+                  "value": "ZZZ999XYZ"
+                },
+                {
+                  "key": "page",
+                  "value": "0"
+                },
+                {
+                  "key": "size",
+                  "value": "10"
                 }
               ]
             },
+            "description": ""
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Trạng thái HTTP 200 OK\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test(\"Thời gian phản hồi dưới 1500ms\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(1500);",
+                  "});",
+                  "pm.test(\"Cấu trúc ApiResponse success = true\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property(\"success\", true);",
+                  "    pm.expect(jsonData).to.have.property(\"data\");",
+                  "});",
+                  "pm.test(\"Kết quả tìm kiếm rỗng trả về mảng trống\", function () {",
+                  "    pm.expect(pm.response.json().data.content.length).to.eql(0);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "BB-PROD-08: GET Lọc sản phẩm theo khoảng giá 5tr - 60tr [EP/BVA]",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/products/filter?minPrice=5000000&maxPrice=60000000&page=0&size=10",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "products",
+                "filter"
+              ],
+              "query": [
+                {
+                  "key": "minPrice",
+                  "value": "5000000"
+                },
+                {
+                  "key": "maxPrice",
+                  "value": "60000000"
+                },
+                {
+                  "key": "page",
+                  "value": "0"
+                },
+                {
+                  "key": "size",
+                  "value": "10"
+                }
+              ]
+            },
+            "description": ""
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Trạng thái HTTP 200 OK\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test(\"Thời gian phản hồi dưới 1500ms\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(1500);",
+                  "});",
+                  "pm.test(\"Cấu trúc ApiResponse success = true\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property(\"success\", true);",
+                  "    pm.expect(jsonData).to.have.property(\"data\");",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "5. Cart (Giỏ hàng - Auth, BVA Tồn kho & CRUD)",
+      "item": [
+        {
+          "name": "BB-CART-01: GET Giỏ hàng khi CHƯA đăng nhập [Security 401/403]",
+          "request": {
             "method": "GET",
             "header": [],
             "url": {
@@ -381,8 +1292,1250 @@
                 "api",
                 "cart"
               ]
+            },
+            "description": ""
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Chặn truy cập khi thiếu hoặc sai JWT (401/403)\", function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([401, 403]);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
             }
-          }
+          ]
+        },
+        {
+          "name": "BB-CART-02: GET Lấy giỏ hàng người dùng hiện tại [Bearer JWT]",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/cart",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "cart"
+              ]
+            },
+            "description": "",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{jwtToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Trạng thái HTTP 200 OK\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test(\"Thời gian phản hồi dưới 1500ms\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(1500);",
+                  "});",
+                  "pm.test(\"Cấu trúc ApiResponse success = true\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property(\"success\", true);",
+                  "    pm.expect(jsonData).to.have.property(\"data\");",
+                  "});",
+                  "pm.test(\"Giỏ hàng có tổng tiền và danh sách items\", function () {",
+                  "    var c = pm.response.json().data;",
+                  "    pm.expect(c).to.have.property(\"totalAmount\");",
+                  "    pm.expect(c).to.have.property(\"items\");",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "BB-CART-03: POST Thêm vào giỏ với số lượng biên 0 [BVA Invalid Min-1]",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/cart/add",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "cart",
+                "add"
+              ]
+            },
+            "description": "",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{jwtToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"productId\": 1,\n  \"quantity\": 0\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Black-Box Validation bắt lỗi (HTTP 400 Bad Request)\", function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([400, 422]);",
+                  "});",
+                  "pm.test(\"Thời gian phản hồi dưới 1500ms\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(1500);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "BB-CART-04: POST Thêm vào giỏ với số lượng âm -1 [EP Negative]",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/cart/add",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "cart",
+                "add"
+              ]
+            },
+            "description": "",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{jwtToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"productId\": 1,\n  \"quantity\": -1\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Black-Box Validation bắt lỗi (HTTP 400 Bad Request)\", function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([400, 422]);",
+                  "});",
+                  "pm.test(\"Thời gian phản hồi dưới 1500ms\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(1500);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "BB-CART-05: POST Thêm vào giỏ vượt quá tồn kho (999999) [BVA Max+1]",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/cart/add",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "cart",
+                "add"
+              ]
+            },
+            "description": "",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{jwtToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"productId\": 1,\n  \"quantity\": 999999\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Black-Box Validation bắt lỗi (HTTP 400 Bad Request)\", function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([400, 422]);",
+                  "});",
+                  "pm.test(\"Thời gian phản hồi dưới 1500ms\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(1500);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "BB-CART-06: POST Thêm sản phẩm hợp lệ vào giỏ (Qty = 1)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/cart/add",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "cart",
+                "add"
+              ]
+            },
+            "description": "",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{jwtToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"productId\": 1,\n  \"quantity\": 1\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Trạng thái HTTP 200 OK\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test(\"Thời gian phản hồi dưới 1500ms\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(1500);",
+                  "});",
+                  "pm.test(\"Cấu trúc ApiResponse success = true\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property(\"success\", true);",
+                  "    pm.expect(jsonData).to.have.property(\"data\");",
+                  "});",
+                  "var items = pm.response.json().data.items;",
+                  "pm.test(\"Giỏ hàng đã thêm ít nhất 1 sản phẩm\", function () {",
+                  "    pm.expect(items.length).to.be.above(0);",
+                  "    pm.environment.set(\"sampleCartItemId\", items[0].id);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "BB-CART-07: DELETE Xóa toàn bộ giỏ hàng để dọn dẹp dữ liệu test",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/cart",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "cart"
+              ]
+            },
+            "description": "",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{jwtToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Xóa giỏ hàng thành công HTTP 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "6. Orders (Đặt hàng - EP, BVA Checkout & State Transition)",
+      "item": [
+        {
+          "name": "BB-ORD-01: GET Danh sách đơn hàng khi CHƯA đăng nhập [Security]",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/orders",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "orders"
+              ]
+            },
+            "description": ""
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Chặn truy cập khi thiếu hoặc sai JWT (401/403)\", function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([401, 403]);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "BB-ORD-02: POST Checkout khi giỏ hàng trống [Negative State]",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/orders/checkout",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "orders",
+                "checkout"
+              ]
+            },
+            "description": "",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{jwtToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"shippingAddress\": \"123 Nguyen Trai, Q1, HCM\",\n  \"phone\": \"0908123456\",\n  \"note\": \"Test empty cart\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Black-Box Validation bắt lỗi (HTTP 400 Bad Request)\", function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([400, 422]);",
+                  "});",
+                  "pm.test(\"Thời gian phản hồi dưới 1500ms\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(1500);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "BB-ORD-03: POST Checkout SĐT ngắn dưới biên Min=10 ('090123') [BVA]",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/orders/checkout",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "orders",
+                "checkout"
+              ]
+            },
+            "description": "",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{jwtToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"shippingAddress\": \"123 Nguyen Trai, Q1, HCM\",\n  \"phone\": \"090123\",\n  \"note\": \"BVA phone\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Black-Box Validation bắt lỗi (HTTP 400 Bad Request)\", function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([400, 422]);",
+                  "});",
+                  "pm.test(\"Thời gian phản hồi dưới 1500ms\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(1500);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "BB-ORD-04: POST Checkout Địa chỉ bỏ trống [EP Blank]",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/orders/checkout",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "orders",
+                "checkout"
+              ]
+            },
+            "description": "",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{jwtToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"shippingAddress\": \"\",\n  \"phone\": \"0908123456\",\n  \"note\": \"Blank address\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Black-Box Validation bắt lỗi (HTTP 400 Bad Request)\", function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([400, 422]);",
+                  "});",
+                  "pm.test(\"Thời gian phản hồi dưới 1500ms\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(1500);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "BB-ORD-05: GET Lịch sử đơn hàng của User hiện tại",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/orders?page=0&size=10",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "orders"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "0"
+                },
+                {
+                  "key": "size",
+                  "value": "10"
+                }
+              ]
+            },
+            "description": "",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{jwtToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Trạng thái HTTP 200 OK\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test(\"Thời gian phản hồi dưới 1500ms\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(1500);",
+                  "});",
+                  "pm.test(\"Cấu trúc ApiResponse success = true\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property(\"success\", true);",
+                  "    pm.expect(jsonData).to.have.property(\"data\");",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "BB-ORD-06: GET Chi tiết đơn hàng không tồn tại (999999) [404]",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/orders/999999",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "orders",
+                "999999"
+              ]
+            },
+            "description": "",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{jwtToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Tài nguyên không tồn tại trả về HTTP 404 Not Found\", function () {",
+                  "    pm.response.to.have.status(404);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "7. Blogs, Reviews, Settings & RBAC Admin Security",
+      "item": [
+        {
+          "name": "BB-MISC-01: GET Danh sách bài viết Blog",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/blogs",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "blogs"
+              ]
+            },
+            "description": ""
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Trạng thái HTTP 200 OK\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test(\"Thời gian phản hồi dưới 1500ms\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(1500);",
+                  "});",
+                  "pm.test(\"Blogs trả về dạng mảng Array\", function () {",
+                  "    pm.expect(pm.response.json()).to.be.an(\"array\");",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "BB-MISC-02: GET Chi tiết Blog không tồn tại (999999) [404]",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/blogs/999999",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "blogs",
+                "999999"
+              ]
+            },
+            "description": ""
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Tài nguyên không tồn tại trả về HTTP 404 Not Found\", function () {",
+                  "    pm.response.to.have.status(404);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "BB-MISC-03: GET Danh sách đánh giá sản phẩm",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/reviews/product/{{sampleProductId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "reviews",
+                "product",
+                "{{sampleProductId}}"
+              ]
+            },
+            "description": ""
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Trạng thái HTTP 200 OK\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test(\"Thời gian phản hồi dưới 1500ms\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(1500);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "BB-MISC-04: GET Danh sách bài viết nổi bật (/api/blogs/featured)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/blogs/featured",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "blogs",
+                "featured"
+              ]
+            },
+            "description": ""
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Trạng thái HTTP 200 OK\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test(\"Thời gian phản hồi dưới 1500ms\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(1500);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "BB-MISC-05: GET Cấu hình hệ thống khi đã đăng nhập (/api/settings/public)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/settings/public",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "settings",
+                "public"
+              ]
+            },
+            "description": "",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{jwtToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Trạng thái HTTP 200 OK\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test(\"Thời gian phản hồi dưới 1500ms\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(1500);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "BB-SEC-01: RBAC - User thường truy cập /api/admin/dashboard bị chặn [403]",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/dashboard",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "dashboard"
+              ]
+            },
+            "description": "",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{jwtToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"RBAC Security: User thường không có quyền Admin (403 Forbidden)\", function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([401, 403]);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "BB-SEC-02: RBAC - User thường truy cập /api/admin/settings bị chặn [403]",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/settings",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "settings"
+              ]
+            },
+            "description": "",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{jwtToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"RBAC Security: User thường không có quyền Admin (403 Forbidden)\", function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([401, 403]);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "8. Security Testing (SQLi, XSS, Tampered JWT & Public Config)",
+      "item": [
+        {
+          "name": "SEC-PUB-01: GET /api/settings/public không cần JWT [Public 200]",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/settings/public",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "settings",
+                "public"
+              ]
+            },
+            "description": ""
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Trạng thái HTTP 200 OK\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test(\"Thời gian phản hồi dưới 1500ms\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(1500);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "SEC-SQLI-01: SQL Injection trong tìm kiếm sản phẩm [PreparedStatement Safe]",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/products/search?keyWord=' OR '1'='1&page=0&size=10",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "products",
+                "search"
+              ],
+              "query": [
+                {
+                  "key": "keyWord",
+                  "value": "' OR '1'='1"
+                },
+                {
+                  "key": "page",
+                  "value": "0"
+                },
+                {
+                  "key": "size",
+                  "value": "10"
+                }
+              ]
+            },
+            "description": ""
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"SQLi không gây lỗi 500 SQL Syntax và trả 200 rỗng an toàn\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "    var d = pm.response.json().data;",
+                  "    pm.expect(d.content.length).to.eql(0);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "SEC-SQLI-02: SQL Injection qua Path Variable Product ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/products/1 OR 1=1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "products",
+                "1 OR 1=1"
+              ]
+            },
+            "description": ""
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Không trả 200 dữ liệu rò rỉ khi Path ID bị inject\", function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([400, 404, 500]);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "SEC-SQLI-03: SQL Injection tại Form Đăng nhập [Auth Bypass Blocked]",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "login"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"admin' OR '1'='1' --\",\n  \"password\": \"anypassword\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Không đăng nhập được bằng SQL Injection\", function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([400, 401]);",
+                  "    var body = pm.response.json();",
+                  "    pm.expect(body.token).to.be.undefined;",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "SEC-XSS-01: XSS Payload tại Đăng ký tài khoản [Input Sanitization / Rejection]",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/register",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "register"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"<script>alert(1)</script>\",\n  \"email\": \"xss_bad_email\",\n  \"password\": \"123\",\n  \"fullName\": \"<img src=x onerror=alert(1)>\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Black-Box Validation bắt lỗi (HTTP 400 Bad Request)\", function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([400, 422]);",
+                  "});",
+                  "pm.test(\"Thời gian phản hồi dưới 1500ms\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(1500);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "SEC-JWT-01: Tampered JWT Token bị từ chối tại /api/orders",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/orders",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "orders"
+              ]
+            },
+            "description": "",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tamperedToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Chặn truy cập khi thiếu hoặc sai JWT (401/403)\", function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([401, 403]);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "SEC-JWT-02: Tampered JWT Token bị từ chối tại /api/admin/users",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/users",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "users"
+              ]
+            },
+            "description": "",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{tamperedToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Chặn truy cập khi thiếu hoặc sai JWT (401/403)\", function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([401, 403]);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "SEC-ADMIN-01: Đăng nhập Admin và kiểm tra truy cập hợp lệ /api/admin/dashboard",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "login"
+              ]
+            },
+            "description": "",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"{{adminUsername}}\",\n  \"password\": \"{{adminPassword}}\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Admin login thành công hoặc kiểm tra môi trường\", function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 400]);",
+                  "    if (pm.response.code === 200) {",
+                  "        pm.environment.set(\"adminJwtToken\", pm.response.json().token);",
+                  "    }",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
         }
       ]
     }

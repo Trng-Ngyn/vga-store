@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { useNavigate, useSearchParams } from 'react-router-dom';
+import axiosClient from '../../api/axiosClient';
 import { userService } from '../../services/userService';
 import { logout, updateUser } from '../../redux/authSlice';
 import { toastSuccess, toastError, confirmDelete } from "../../utils/alertUtils";
